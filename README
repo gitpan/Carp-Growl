@@ -1,0 +1,34 @@
+This archive contains the distribution Carp-Growl version 0.0.2:
+
+    Send warnings to Growl
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Build.PL
+	./Build
+	./Build test
+	./Build install
+
+Alternatively, to install with ExtUtils::MakeMaker, you can use the following commands:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
+
+
+DEPENDENCIES
+
+Growl::Any
+
+Some application like 'Growl' that can be used from Growl::Any
+
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2013, kpee
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl 5 itself.
