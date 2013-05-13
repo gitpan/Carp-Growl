@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Carp ();
 
-use version; our $VERSION = qv('0.0.3');
+use version; our $VERSION = qv('0.0.4');
 
 use Growl::Any;
 my $g = Growl::Any->new( appname => __PACKAGE__, events => [qw/warn die/] );
@@ -209,7 +209,7 @@ and unimport takes no keywords.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Carp::Growl requires notify system which Growl::Any supports is required for this module..
+Carp::Growl requires notice application that can be used from Growl::Any.
 
 Carp::Growl requires no environment variables.
 
