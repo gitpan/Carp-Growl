@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Carp ();
 
-use version; our $VERSION = qv('0.0.4');
+use version; our $VERSION = qv('0.0.3');
 
 use Growl::Any;
 my $g = Growl::Any->new( appname => __PACKAGE__, events => [qw/warn die/] );
