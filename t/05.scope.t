@@ -1,5 +1,5 @@
 package DUMMY;
-use lib 'testlib';    # Load fake 'Growl::Any'
+use lib 't/testlib';    # Load fake 'Growl::Any'
 
 use Carp::Growl;
 

@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Carp ();
 
-use version; our $VERSION = qv('0.0.2');
+use version; our $VERSION = qv('0.0.3');
 
 use Growl::Any;
 my $g = Growl::Any->new( appname => __PACKAGE__, events => [qw/warn die/] );
@@ -170,27 +170,27 @@ This document describes Carp::Growl version 0.0.1
 
 =head1 DESCRIPTION
 
-    Carp::Growl is a Perl module that can send warning-messages to Growl,
-    and also outputs usual(to tty etc...)
+Carp::Growl is a Perl module that can send warning-messages to Growl,
+and also outputs usual(to tty etc...)
 
-    Basicaly, only type this at the head of your script.
+Basicaly, only type this at the head of your script.
 
-        use Carp::Growl;
+    use Carp::Growl;
 
-    This works only in your 'package-scope'.
-    If you want to work it globally, use with arg 'global',
+This works only in your 'package-scope'.
+If you want to work it globally, use with arg 'global',
 
-        use Carp::Growl 'global';
+    use Carp::Growl 'global';
 
-    Of cource, it is only 'warn' and 'die' that influence globally,
-    (can your hear about global-scoped carp and croak?)
-    but 'carp' and 'croak' are also installed in 'package-scope'.
+Of cource, it is only 'warn' and 'die' that influence globally,
+(can your hear about global-scoped carp and croak?)
+but 'carp' and 'croak' are also installed in 'package-scope'.
 
-    However, you can disable this module,
+However, you can disable this module,
 
-        no Carp::Growl;
+    no Carp::Growl;
 
-    so, every warnings works as usual.
+so, every warnings works as usual.
 
 
 =head1 DIAGNOSTICS
@@ -209,7 +209,7 @@ and unimport takes no keywords.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Carp::Growl requires Notify-App such as Growl, Growl for Windows, etc.
+Carp::Growl requires notify system which Growl::Any supports is required for this module..
 
 Carp::Growl requires no environment variables.
 
@@ -218,7 +218,6 @@ Carp::Growl requires no environment variables.
 
 Growl::Any
 
-Some application like 'Growl' that can be used from Growl::Any
 
 =head1 INCOMPATIBILITIES
 

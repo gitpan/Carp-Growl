@@ -1,6 +1,5 @@
 use Test::More tests => 5;
-use Test::Exception;
-use lib 'testlib';    # Load fake 'Growl::Any'
+use lib 't/testlib';    # Load fake 'Growl::Any'
 
 use Carp::Growl;
 

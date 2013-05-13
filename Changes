@@ -1,5 +1,10 @@
 Revision history for Carp-Growl
 
+0.0.3  Sat May 13 23:06:00 2013
+       FIX: remove Test::Exception from test file.
+            (It's not required, but loaded)
+       IMPROVE: description of a document
+
 0.0.2  Sat May 11 15:00:00 2013
        ADD: 'global' option to load.
 
