@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Module::Build;
+use Module::Build qw/0.11/;
 
 my $builder = Module::Build->new(
     module_name       => 'Carp::Growl',

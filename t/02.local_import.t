@@ -1,6 +1,6 @@
 use Test::More tests => 2;
 
-#sub warn { goto &CORE::warn; }
+use lib 't/testlib';    # for loading DUMMY Growl::Any
 
 {
     eval { require Carp::Growl } or BAIL_OUT("Can't load 'Carp::Growl'");

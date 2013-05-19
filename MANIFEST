@@ -11,6 +11,4 @@ t/02.local_import.t
 t/03.global_import.t
 t/04.use.t
 t/05.scope.t
-t/pod-coverage.t
-t/pod.t
 t/testlib/Growl/Any.pm

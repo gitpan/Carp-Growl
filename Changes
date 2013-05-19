@@ -1,5 +1,12 @@
 Revision history for Carp-Growl
 
+0.0.4  Sun May 19 21:00:00 2013
+       FIX: Test passes even when there is no 'notice system'
+            which Growl::Any supports.
+       FIX: file name and line number of the message of growl had mistaken
+            by the multiplex call.
+       IMPROVE: documents
+
 0.0.3  Sat May 13 23:06:00 2013
        FIX: The test failure resulting from use of the module 
             "Test::Exception" without necessity is corrected.

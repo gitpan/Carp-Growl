@@ -2,9 +2,9 @@ package Carp::Growl;
 
 use warnings;
 use strict;
-use Carp ();
+use Carp;
 
-use version; our $VERSION = qv('0.0.3');
+use version; our $VERSION = '0.0.4';
 
 use Growl::Any;
 my $g = Growl::Any->new( appname => __PACKAGE__, events => [qw/warn die/] );
@@ -15,7 +15,7 @@ my $imported = 0;
 
 my $AVAILABLE_IMPORT_ARGS = [qw/global/];
 
-my $check_args = sub {
+my $validate_args = sub {
     my %bads;
     for my $good (@$AVAILABLE_IMPORT_ARGS) {
         $bads{$_}++ for grep { $_ ne $good } @_;
@@ -40,11 +40,8 @@ my $BUILD_FUNC_ARGS = +{
 sub _build_func {
     my $func = shift;
     return sub {
-        my ( $pkg, $file, $line, ) = ( caller() )[ 0 .. 2 ];
-        my $msg = join( $",
-            @_, 'at', $pkg eq 'main' ? $file : $pkg,
-            'line', $line, )
-            . '.';
+        my $msg = Carp::shortmess(@_);
+        chomp $msg;
         $g->notify(
             $BUILD_FUNC_ARGS->{$func}->{event},    # event
             $BUILD_FUNC_ARGS->{$func}->{title},    # title
@@ -52,8 +49,7 @@ sub _build_func {
             undef,                                 # icon
             )
             if defined $^S;
-        no strict 'refs';
-        &{ $CARP_FUNCS->{$func} }(@_);
+        goto &{ $CARP_FUNCS->{$func} };
     };
 }
 
@@ -63,7 +59,7 @@ sub import {
     my $self = shift;
     my @args = @_;
     if (@args) {
-        my @bads = $check_args->(@args);
+        my @bads = $validate_args->(@args);
         CORE::die 'Illegal args: "'
             . join( '", "', @bads )
             . '" for import()'
@@ -159,7 +155,7 @@ Carp::Growl - Send warnings to Growl
 
 =head1 VERSION
 
-This document describes Carp::Growl version 0.0.1
+This document describes Carp::Growl version 
 
 
 =head1 SYNOPSIS

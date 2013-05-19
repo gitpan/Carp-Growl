@@ -1,5 +1,7 @@
 use Test::More tests => 5;
 
+use lib 't/testlib';    # for loading DUMMY Growl::Any
+
 BEGIN {
     require Carp::Growl or BAIL_OUT("Can't load Carp::Growl");
 }
