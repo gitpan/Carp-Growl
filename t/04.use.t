@@ -15,7 +15,7 @@ my %notify_title = (
     croak => [ 'die',  'FATAL' ],
 );
 for my $func ( keys %notify_title ) {
-    my $warn_message = 'do ' . $func . '()';
+    my $warn_message = $func . '()';
     my $warn_message_complete
         = $warn_message . ' at '
         . __FILE__

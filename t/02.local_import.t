@@ -1,36 +1,31 @@
-use Test::More tests => 2;
+use Test::More tests => 11;
 
 use lib 't/testlib';    # for loading DUMMY Growl::Any
 
 {
     eval { require Carp::Growl } or BAIL_OUT("Can't load 'Carp::Growl'");
 
-    subtest 'simple (un)import' => sub {
+    {
         Carp::Growl->import();
-        ok( defined &{ __PACKAGE__ . '::warn' },  'import local warn()' );
-        ok( defined &{ __PACKAGE__ . '::die' },   'import local die()' );
-        ok( defined &{ __PACKAGE__ . '::carp' },  'import local carp()' );
-        ok( defined &{ __PACKAGE__ . '::croak' }, 'import local croak()' );
+        for $f (qw/warn die carp croak/) {
+            ok( defined &{ '::' . $f }, 'import local ' . $f . '()' );
+        }
+        Carp::Growl->unimport();
+        for $f (qw/warn die carp croak/) {
+            ok( !defined &{ *{ __PACKAGE__ . '::' . $f } },
+                'unimport local ' . $f . '()' );
+        }
+    }
+    {
+        my $pre_installed_sub = sub {1};
+        *{ __PACKAGE__ . '::carp' } = $pre_installed_sub;
+        Carp::Growl->import();
+        ok( defined &{ __PACKAGE__ . '::carp' }, 'import local warn()' );
+        isnt( *{ __PACKAGE__ . '::carp' }{CODE},
+            $pre_installed_sub, 'override local warn()' );
 
         Carp::Growl->unimport();
-        ok( !defined &{ __PACKAGE__ . '::warn' },  'unimport local warn()' );
-        ok( !defined &{ __PACKAGE__ . '::die' },   'unimport local die()' );
-        ok( !defined &{ __PACKAGE__ . '::carp' },  'unimport local carp()' );
-        ok( !defined &{ __PACKAGE__ . '::croak' }, 'unimport local croak()' );
-    };
-    subtest '(un)import against defined func' => sub {
-        sub pre_installed_sub {1}
-        *{ __PACKAGE__ . '::warn' } = \&pre_installed_sub;
-        Carp::Growl->import();
-        ok( defined &{ __PACKAGE__ . '::warn' }, 'import local warn()' );
-        isnt(
-            \&{ __PACKAGE__ . '::warn' },
-            \&::pre_installed_sub,
-            'override local warn()'
-        );
-
-        Carp::Growl->unimport();
-        is( \&{ __PACKAGE__ . '::warn' },
-            \&pre_installed_sub, 'restore local warn()' );
-    };
+        is( *{ __PACKAGE__ . '::carp' }{CODE},
+            $pre_installed_sub, 'restore local warn()' );
+    }
 }

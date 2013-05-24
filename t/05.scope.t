@@ -8,9 +8,9 @@ use Test::More tests => 8;
 
 my @funcs = qw/warn die carp croak/;
 
-diag "call Carp::Growl'ed DUMMY::<funcs> from main";
+diag "call Carp::Growl'ed &DUMMY::<func> from main";
 for my $func (@funcs) {
-    my $warn_message = 'do ' . $func . '() in DUMMY';
+    my $warn_message = 'call &DUMMY::' . $func . '()';
     my $warn_message_complete
         = $warn_message . ' at '
         . __FILE__
@@ -22,7 +22,7 @@ for my $func (@funcs) {
 }
 diag "call <funcs> normally from main";
 for my $func (@funcs) {
-    my $warn_message = 'do ' . $func . '() in main';
+    my $warn_message = 'call &main::' . $func . '()';
     eval { &{$func}($warn_message) };
     is_deeply( $Growl::Any::SUB_NOTIFY_ARGS, [] );
     @$Growl::Any::SUB_NOTIFY_ARGS = ();    #reset

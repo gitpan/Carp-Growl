@@ -3,14 +3,17 @@ package Carp::Growl;
 use warnings;
 use strict;
 use Carp;
+use Smart::Comments;
 
-use version; our $VERSION = '0.0.4';
+use version; our $VERSION = '0.0.5';
 
 use Growl::Any;
+
 my $g = Growl::Any->new( appname => __PACKAGE__, events => [qw/warn die/] );
 
-my $global   = {};
-my $local    = {};
+our @CARP_NOT;
+
+my $KEEP     = {};
 my $imported = 0;
 
 my $AVAILABLE_IMPORT_ARGS = [qw/global/];
@@ -23,9 +26,9 @@ my $validate_args = sub {
     keys %bads;
 };
 
-my $CARP_FUNCS = +{
-    warn  => \&Carp::carp,
-    die   => \&Carp::croak,
+my $DEFAULT_FUNCS = +{
+    warn  => \&CORE::warn,
+    die   => \&CORE::die,
     carp  => \&Carp::carp,
     croak => \&Carp::croak,
 };
@@ -39,18 +42,43 @@ my $BUILD_FUNC_ARGS = +{
 
 sub _build_func {
     my $func = shift;
-    return sub {
-        my $msg = Carp::shortmess(@_);
-        chomp $msg;
-        $g->notify(
-            $BUILD_FUNC_ARGS->{$func}->{event},    # event
-            $BUILD_FUNC_ARGS->{$func}->{title},    # title
-            $msg,                                  # message
-            undef,                                 # icon
-            )
-            if defined $^S;
-        goto &{ $CARP_FUNCS->{$func} };
-    };
+    if ( ( $func eq 'warn' || $func eq 'die' ) ) {
+        return sub {
+            my ( $pkg, $file, $line ) = caller();
+            my $msg = join $", @_;
+            $msg ||= $func eq 'warn' ? "Warning: something's wrong" : "Died";
+            unless ( $msg =~ s{\n \z}{}msx ) {
+                $msg .= ' at ' . $file . ' line ' . $line . '.';
+            }
+            $g->notify(
+                $BUILD_FUNC_ARGS->{$func}->{event},    # event
+                $BUILD_FUNC_ARGS->{$func}->{title},    # title
+                $msg,                                  # message
+                undef,                                 # icon
+                )
+                if defined $^S;
+            goto &{ $DEFAULT_FUNCS->{$func} };
+        };
+    }
+    else {
+        return sub {
+            no strict 'refs';
+#            if ( caller eq 'main' ) {
+#                local *{'main::CARP_NOT'};
+#                push @{ *{'main::CARP_NOT'} }, __PACKAGE__;
+#            }
+            my $msg = Carp::shortmess(@_);
+            chomp $msg;
+            $g->notify(
+                $BUILD_FUNC_ARGS->{$func}->{event},    # event
+                $BUILD_FUNC_ARGS->{$func}->{title},    # title
+                $msg,                                  # message
+                undef,                                 # icon
+                )
+                if defined $^S;
+            goto &{ $DEFAULT_FUNCS->{$func} };
+        };
+    }
 }
 
 ##~~~~~  IMPORT  ~~~~~##
@@ -64,42 +92,44 @@ sub import {
             . join( '", "', @bads )
             . '" for import()'
             if @bads;
-        return if $imported >= 2;
         $imported = 2;
-        goto &_global_import;
+        goto &_global_import if grep { $_ eq 'global' } @args;
     }
     else {
-        return if $imported;
         $imported = 1;
-        goto &_local_import;
     }
+    goto &_local_import;
 }
 
 sub _local_import {
     my $args = @_ ? \@_ : [ keys %$BUILD_FUNC_ARGS ];
-    my ($pkg) = caller();
+    my $pkg = caller();
     no strict 'refs';
     for my $func ( keys %$BUILD_FUNC_ARGS ) {
-        $local->{$pkg}->{$func} = delete ${ $pkg . '::' }{$func}
-            if defined &{ $pkg . '::' . $func };
+        $KEEP->{$pkg}->{$func} = \&{ *{ $pkg . '::' . $func } }
+            if defined *{ $pkg . '::' . $func }{CODE};
     }
     for my $func (@$args) {
         no warnings 'redefine';
         *{ $pkg . '::' . $func } = _build_func($func);
     }
+    push @CARP_NOT, $pkg if $pkg ne 'main';
 }
 
 sub _global_import {
     no strict 'refs';
-    for my $func (qw/warn die/) {
-        $global->{$func} = \&{ 'CORE::GLOBAL::' . $func }
-            if defined &{ 'CORE::GLOBAL::' . $func };
-    }
-
     no warnings 'redefine';
+    my $pkg = caller;
     for my $func (qw/warn die/) {
+        $KEEP->{'CORE::GLOBAL'}->{$func} = \&{ *{ 'CORE::GLOBAL::' . $func } }
+            if defined *{ 'CORE::GLOBAL::' . $func }{CODE};
         *{ 'CORE::GLOBAL::' . $func } = _build_func($func);
+        $KEEP->{$pkg}->{$func} = \&{ *{ $pkg . '::' . $func } }
+            if defined *{ $pkg . '::' . $func }{CODE};
+        undef &{ *{ $pkg . '::' . $func } }
+            if defined *{ $pkg . '::' . $func }{CODE};
     }
+    push @Carp::CARP_NOT, __PACKAGE__;
     @_ = qw/carp croak/;
     goto &_local_import;
 }
@@ -121,12 +151,15 @@ sub _local_unimport {
     no strict 'refs';
     no warnings 'redefine';
     for my $func (@$args) {
-        if ( $local->{$pkg}->{$func} ) {
-            *{ $pkg . '::' . $func } = \&{ $local->{$pkg}->{$func} };
+        if ( $KEEP->{$pkg}->{$func} ) {
+            *{ $pkg . '::' . $func } = $KEEP->{$pkg}->{$func};
         }
         else {
-            delete ${ $pkg . '::' }{$func};
+            undef &{ *{ $pkg . '::' . $func } }
+                if defined *{ $pkg . '::' . $func }{CODE};
         }
+        @{ *{ $pkg . '::CARP_NOT' } }
+            = grep { $_ ne __PACKAGE__ } @{ *{ $pkg . '::CARP_NOT' } };
     }
 }
 
@@ -134,11 +167,11 @@ sub _global_unimport {
     no strict 'refs';
     no warnings 'redefine';
     for my $func (qw/warn die/) {
-        if ( $global->{$func} ) {
-            *{ 'CORE::GLOBAL::' . $func } = \&{ $global->{$func} };
+        if ( $KEEP->{'CORE::GLOBAL'}->{$func} ) {
+            *{ 'CORE::GLOBAL::' . $func } = $KEEP->{'CORE::GLOBAL'}->{$func};
         }
-        else {
-            delete ${'CORE::GLOBAL::'}{$func};
+        elsif ( defined *{ 'CORE::GLOBAL::' . $func }{CODE} ) {
+            undef &{ *{ 'CORE::GLOBAL::' . $func } };
         }
     }
 #    @_ = qw/carp croak/;
@@ -166,27 +199,24 @@ This document describes Carp::Growl version
 
 =head1 DESCRIPTION
 
-Carp::Growl is a Perl module that can send warning-messages to Growl,
-and also outputs usual(to tty etc...)
+Carp::Growl is a Perl module that can send warning messages to 
+notice application such as Growl, and also outputs usual(to tty etc...)
 
-Basicaly, only type this at the head of your script.
+Basically, you write like this to the beginning of your code.
 
     use Carp::Growl;
 
-This works only in your 'package-scope'.
-If you want to work it globally, use with arg 'global',
+This works only in your 'package scope'.
+If you want to work it globally, you use with arg 'global'.
 
     use Carp::Growl 'global';
 
-Of cource, it is only 'warn' and 'die' that influence globally,
-(can your hear about global-scoped carp and croak?)
-but 'carp' and 'croak' are also installed in 'package-scope'.
+C<warn> and C<die> are installed to C<CORE::GLOBAL::> name space,
+and C<carp> and C<croak> are also installed as package function.
 
 However, you can disable this module,
 
     no Carp::Growl;
-
-so, every warnings works as usual.
 
 
 =head1 DIAGNOSTICS
@@ -197,15 +227,13 @@ so, every warnings works as usual.
 
 %s is not correct keyword for import|unimport.
 
-only 'global' is available keyword for import(),
-and unimport takes no keywords.
+Only C<global> is an available keyword for C<import>,
+and C<unimport> takes no keywords.
 
 =back
 
 
 =head1 CONFIGURATION AND ENVIRONMENT
-
-Carp::Growl requires notice application that can be used from Growl::Any.
 
 Carp::Growl requires no environment variables.
 
@@ -213,6 +241,13 @@ Carp::Growl requires no environment variables.
 =head1 DEPENDENCIES
 
 Growl::Any
+
+
+=head1 NOTICE
+
+This module is installable even if you have no notice application(like 'Growl')
+that can be used from Growl::Any.
+However, it will not be helpful for you.
 
 
 =head1 INCOMPATIBILITIES
