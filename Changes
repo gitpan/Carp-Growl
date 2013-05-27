@@ -1,5 +1,8 @@
 Revision history for Carp-Growl
 
+0.0.6  Mon May 27 12:40:00 2013
+       FIX: Test failure because of using unnecessary module "Smart::Comments"( sorry... )
+
 0.0.5  Fri May 24 23:55:00 2013
        FIX: "warn" and "die" still reports incorrect file name and line number.
        IMPROVE: "unimport" works correctly.

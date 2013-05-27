@@ -30,14 +30,14 @@
    "provides" : {
       "Carp::Growl" : {
          "file" : "lib/Carp/Growl.pm",
-         "version" : "v0.0.5"
+         "version" : "v0.0.6"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "license" : [
-         "http://www.perlfoundation.org/artistic_license_1_0"
+         "http://opensource.org/licenses/artistic-license.php"
       ]
    },
-   "version" : "v0.0.5"
+   "version" : "v0.0.6"
 }

@@ -1,5 +1,5 @@
 ---
-abstract: Send warnings to Growl
+abstract: 'Send warnings to Growl'
 author:
   - 'kpee <kpee.cpanx@gmail.com>'
 build_requires: {}
@@ -15,11 +15,11 @@ name: Carp-Growl
 provides:
   Carp::Growl:
     file: lib/Carp/Growl.pm
-    version: v0.0.5
+    version: v0.0.6
 requires:
   Growl::Any: 0
   Test::More: 0
   version: 0
 resources:
-  license: http://www.perlfoundation.org/artistic_license_1_0
-version: v0.0.5
+  license: http://opensource.org/licenses/artistic-license.php
+version: v0.0.6
