@@ -4,9 +4,41 @@ use warnings;
 use strict;
 use Carp;
 
-use version; our $VERSION = '0.0.6';
+use version; our $VERSION = '0.0.7';
 
 use Growl::Any;
+
+my $build_warnmess;
+
+my $DEFAULT_FUNCS = +{};
+
+BEGIN {
+    $build_warnmess = sub {
+        my ( $func, @args ) = @_;
+        my ( $pkg, $file, $line ) = caller(1);
+        my $self;
+        unless (@args) {
+            unshift @args,
+                ( $func eq 'warn' ? "Warning: something's wrong" : "Died" );
+        }
+        $self = join( $", @args );
+        unless ( $self =~ s/\n \z//msx ) {
+            $self .= " at $file line $line.";
+        }
+        $self;
+    };
+}
+
+if ( $] < 5.016000 ) {
+    @{$DEFAULT_FUNCS}{qw/warn die/} = (
+        sub { CORE::warn( $build_warnmess->( 'warn', @_ ), $/ ); },
+        sub { CORE::die( $build_warnmess->( 'die', @_ ), $/ ); },
+    );
+}
+else {
+    $DEFAULT_FUNCS->{warn} = \&CORE::warn;
+    $DEFAULT_FUNCS->{die}  = \&CORE::die;
+}
 
 my $g = Growl::Any->new( appname => __PACKAGE__, events => [qw/warn die/] );
 
@@ -24,14 +56,10 @@ my $validate_args = sub {
     }
     keys %bads;
 };
-
-my $DEFAULT_FUNCS = +{
-    warn  => \&CORE::warn,
-    die   => \&CORE::die,
-    carp  => \&Carp::carp,
-    croak => \&Carp::croak,
-};
-
+for my $f (qw/carp croak/) {
+    no strict 'refs';
+    $DEFAULT_FUNCS->{$f} = *{ 'Carp::' . $f }{CODE};
+}
 my $BUILD_FUNC_ARGS = +{
     warn  => { event => 'warn', title => 'WARNING', },
     die   => { event => 'die',  title => 'FATAL', },
@@ -43,16 +71,10 @@ sub _build_func {
     my $func = shift;
     if ( ( $func eq 'warn' || $func eq 'die' ) ) {
         return sub {
-            my ( $pkg, $file, $line ) = caller();
-            my $msg = join $", @_;
-            $msg ||= $func eq 'warn' ? "Warning: something's wrong" : "Died";
-            unless ( $msg =~ s{\n \z}{}msx ) {
-                $msg .= ' at ' . $file . ' line ' . $line . '.';
-            }
             $g->notify(
                 $BUILD_FUNC_ARGS->{$func}->{event},    # event
                 $BUILD_FUNC_ARGS->{$func}->{title},    # title
-                $msg,                                  # message
+                $build_warnmess->( $func, @_ ),        # message
                 undef,                                 # icon
                 )
                 if defined $^S;
@@ -187,7 +209,7 @@ Carp::Growl - Send warnings to Growl
 
 =head1 VERSION
 
-This document describes Carp::Growl version 0.0.6
+This document describes Carp::Growl version 0.0.7
 
 
 =head1 SYNOPSIS

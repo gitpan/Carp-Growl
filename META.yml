@@ -15,11 +15,11 @@ name: Carp-Growl
 provides:
   Carp::Growl:
     file: lib/Carp/Growl.pm
-    version: v0.0.6
+    version: v0.0.7
 requires:
   Growl::Any: 0
   Test::More: 0
   version: 0
 resources:
-  license: http://opensource.org/licenses/artistic-license.php
-version: v0.0.6
+  license: http://www.perlfoundation.org/artistic_license_1_0
+version: v0.0.7
