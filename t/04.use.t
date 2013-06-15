@@ -1,4 +1,4 @@
-use Test::More tests => 5;
+use Test::More tests => 17;
 use lib 't/testlib';    # Load fake 'Growl::Any'
 
 use Carp::Growl;
@@ -17,13 +17,16 @@ my %notify_title = (
 for my $func ( keys %notify_title ) {
     my $warn_message = $func . '()';
     my $warn_message_complete
-        = $warn_message . ' at '
-        . __FILE__
-        . ' line '
-        . ( __LINE__ + 1 ) . '.';
+        = $warn_message . ' at ' . __FILE__ . ' line ' . ( __LINE__ + 1 );
     eval { &{$func}($warn_message) };
-    is_deeply( $Growl::Any::SUB_NOTIFY_ARGS,
-        [ @{ $notify_title{$func} }, $warn_message_complete, undef ],
-        $warn_message, );
+    my @expected = ( @{ $notify_title{$func} }, undef, undef );
+    diag $warn_message;
+    for my $i ( 0, 1, 3 ) {
+        is( $Growl::Any::SUB_NOTIFY_ARGS->[$i], $expected[$i] );
+    }
+    like(
+        $Growl::Any::SUB_NOTIFY_ARGS->[2],
+        qr/^\Q$warn_message_complete\E\.?$/
+    );
     @$Growl::Any::SUB_NOTIFY_ARGS = ();    #reset
 }

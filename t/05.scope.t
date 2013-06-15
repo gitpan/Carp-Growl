@@ -12,12 +12,12 @@ diag "call Carp::Growl'ed &DUMMY::<func> from main";
 for my $func (@funcs) {
     my $warn_message = 'call &DUMMY::' . $func . '()';
     my $warn_message_complete
-        = $warn_message . ' at '
-        . __FILE__
-        . ' line '
-        . ( __LINE__ + 1 ) . '.';
+        = $warn_message . ' at ' . __FILE__ . ' line ' . ( __LINE__ + 1 );
     eval { &{ 'DUMMY::' . $func }($warn_message) };
-    is( $Growl::Any::SUB_NOTIFY_ARGS->[2], $warn_message_complete );
+    like(
+        $Growl::Any::SUB_NOTIFY_ARGS->[2],
+        qr/^\Q$warn_message_complete\E\.?$/
+    );
     @$Growl::Any::SUB_NOTIFY_ARGS = ();    #reset
 }
 diag "call <funcs> normally from main";

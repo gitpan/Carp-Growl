@@ -55,9 +55,10 @@ for my $pkg (@packs) {
         $expected .= $LINE ? $LINE : ( __LINE__ + 2 );
         $expected .= '.';
         eval { &{ $pkg . '::' . $func }($warn_message) };
-        is( $Growl::Any::SUB_NOTIFY_ARGS->[2],
-            $expected, $warn_message . " - GROWL" );
-        is( $CAPTURED_WARN, $expected . $/, $warn_message . " - $func" );
+        like( $Growl::Any::SUB_NOTIFY_ARGS->[2],
+            qr/^\Q$expected\E\.?$/, $warn_message . " - GROWL" );
+        like( $CAPTURED_WARN, qr/^\Q$expected\E\.?$/,
+            $warn_message . " - $func" );
         $CAPTURED_WARN                = undef;           #reset
         @$Growl::Any::SUB_NOTIFY_ARGS = ();              #reset
         $LINE                         = shift(@lines);

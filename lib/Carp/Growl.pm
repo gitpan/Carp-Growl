@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Carp;
 
-use version; our $VERSION = '0.0.7';
+use version; our $VERSION = '0.0.8';
 
 use Growl::Any;
 
@@ -221,7 +221,7 @@ This document describes Carp::Growl version 0.0.7
 =head1 DESCRIPTION
 
 Carp::Growl is a Perl module that can send warning messages to 
-notice application such as Growl, and also outputs usual(to tty etc...)
+notification system such as Growl, and also outputs usual(to tty etc...)
 
 Basically, you write like this to the beginning of your code.
 
@@ -266,7 +266,7 @@ Growl::Any
 
 =head1 NOTICE
 
-This module is installable even if you have no notice application(like 'Growl')
+This module is installable even if you have no notification system(like 'Growl')
 that can be used from Growl::Any.
 However, it will not be helpful for you.
 

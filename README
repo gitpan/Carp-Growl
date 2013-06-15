@@ -1,4 +1,4 @@
-This archive contains the distribution Carp-Growl version 0.0.7:
+This archive contains the distribution Carp-Growl version 0.0.8:
 
     Send warnings to Growl
 
@@ -18,8 +18,8 @@ Growl::Any
 
 NOTICE
 
-This module is installable even if you have no notice application(like 'Growl')
- that can be used from Growl::Any.
+This module is installable even if you have no notification system(like 'Growl')
+that can be used from Growl::Any.
 However, it will not be helpful for you.
 
 

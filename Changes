@@ -1,5 +1,8 @@
 Revision history for Carp-Growl
 
+0.0.8  Sat Jun 15 20:00:00 2013
+       FIX: Test failure because of Carp's  dialect
+
 0.0.7  Wed May 29 20:00:00 2013
        FIX: Works under perl-5.15.9 or lower 
 
