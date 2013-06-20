@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Carp;
 
-use version; our $VERSION = '0.0.8';
+use version; our $VERSION = '0.0.9';
 
 use Growl::Any;
 

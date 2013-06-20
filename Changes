@@ -1,5 +1,8 @@
 Revision history for Carp-Growl
 
+0.0.9  Thu Jun 20 23:45:00 2013
+       FIX: (Again) Test failure because of Carp's  dialect
+
 0.0.8  Sat Jun 15 20:00:00 2013
        FIX: Test failure because of Carp's  dialect
 

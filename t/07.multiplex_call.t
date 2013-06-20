@@ -52,8 +52,7 @@ for my $pkg (@packs) {
         my $warn_message_complete
             = $warn_message . ' at ' . __FILE__ . ' line ';
         my $expected = $warn_message_complete;
-        $expected .= $LINE ? $LINE : ( __LINE__ + 2 );
-        $expected .= '.';
+        $expected .= $LINE ? $LINE : ( __LINE__ + 1 );
         eval { &{ $pkg . '::' . $func }($warn_message) };
         like( $Growl::Any::SUB_NOTIFY_ARGS->[2],
             qr/^\Q$expected\E\.?$/, $warn_message . " - GROWL" );
