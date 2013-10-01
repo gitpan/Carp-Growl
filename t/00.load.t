@@ -1,5 +1,5 @@
 use Test::More tests => 1;
-
+use lib 't/testlib';
 my $fatal;
 
 BEGIN {

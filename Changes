@@ -1,5 +1,10 @@
 Revision history for Carp-Growl
 
+0.0.10  Tue Oct 1 0:00:00 2013
+       FIX: t/00.load.t failure when Growl requires password
+	   IMPROVE: add Carp to prereq-modules
+	   IMPROVE: pod
+
 0.0.9  Thu Jun 20 23:45:00 2013
        FIX: (Again) Test failure because of Carp's  dialect
 

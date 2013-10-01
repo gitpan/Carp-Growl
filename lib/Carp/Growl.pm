@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Carp;
 
-use version; our $VERSION = '0.0.9';
+use version; our $VERSION = '0.0.10';
 
 use Growl::Any;
 
@@ -262,11 +262,12 @@ Carp::Growl requires no environment variables.
 =head1 DEPENDENCIES
 
 Growl::Any
-
+Carp
+version
 
 =head1 NOTICE
 
-This module is installable even if you have no notification system(like 'Growl')
+This module is installable even if you have no notification system
 that can be used from Growl::Any.
 However, it will not be helpful for you.
 

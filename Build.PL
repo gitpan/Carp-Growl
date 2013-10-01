@@ -10,6 +10,7 @@ my $builder = Module::Build->new(
     requires          => {
         'Test::More' => 0,
         'version'    => 0,
+        'Carp'       => 0,
         'Growl::Any' => 0,
     },
     add_to_cleanup => ['Carp-Growl-*'],
